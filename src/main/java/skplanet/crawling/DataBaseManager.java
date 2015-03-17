@@ -51,7 +51,7 @@ public class DataBaseManager {
 		}
 	}
 
-	public void insert_course(Course courseInfo){
+	public void insert_course(Course courseInfo) {//throws SQLException {
 		
 		try {
 			int Course_Id = courseInfo.getCourse_Id();
@@ -97,13 +97,15 @@ public class DataBaseManager {
 		try {
 			int Course_Id = cc.getCourse_id();
 			int Category_Cd = cc.getCategory_Cd();
+			int Course_Category_Cd = cc.getCourse_Category_Cd();
 
-			String sql = "INSERT INTO Course_Category( Course_Id, Category_Cd)"
-						+" VALUES (?, ?)";
+			String sql = "INSERT INTO Course_Category( Course_Id, Category_Cd, Course_Category_Cd)"
+						+" VALUES (?, ?, ?)";
 			pstmt=conn.prepareStatement(sql);
 			
 			pstmt.setInt(1, Course_Id);
 			pstmt.setInt(2, Category_Cd);
+			pstmt.setInt(3, Course_Category_Cd);
 	         
 	        int result = pstmt.executeUpdate();
 	        if(result ==1){
@@ -112,8 +114,8 @@ public class DataBaseManager {
 	        else{
 	        	System.out.println("DataBaseManager(insert into cc) 실패 " + Course_Id+", "+Category_Cd);
 	        }
-
-
+		} catch (MySQLIntegrityConstraintViolationException e) {
+	        System.out.println("DataBaseManager->insert_course_category()"+e.getMessage() + " 이미 존재합니다.");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package skplanet.crawling;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -7,6 +8,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 public class CourseCrawling {
 
@@ -18,6 +21,7 @@ public class CourseCrawling {
 	private int Course_Category_Cnt;
 	private int Course_level;
 	private int Category_Cd;
+	private int Course_Category_Cd;
 	private int User_Type_Cd;
 	private Vector<Long> lCategory_Cd  = new Vector<Long>();
 	
@@ -64,7 +68,8 @@ public class CourseCrawling {
                 
                 if( elementObject.get("language").toString().equals("en") ){
                 	Course course = new Course();// Course Info
-
+                //	Course_Category cc = new Course_Category(); // Course_Category Info
+                	
                 	this.Course_Des = (String) elementObject.get("shortDescription");
 	                this.Course_Id = Integer.parseInt(elementObject.get("id").toString());
 	                this.Course_Thumbnail = (String) elementObject.get("smallIcon");
@@ -95,11 +100,12 @@ public class CourseCrawling {
 		        			nCategories++;
 		        			Long LongCategory_Cd = iterator.next(); //LongCategory_Cd를 Course에 저장하기위해서
 		        			LongVectorCategory_Cd.add(LongCategory_Cd);
-		        			
 		        			this.Category_Cd = LongCategory_Cd.intValue();	// DB의 Course_Category에 저장하기위해 Long -> int로변
-		        			Course_Category cc = new Course_Category(this.Course_Id, this.Category_Cd);
-		        			//  DB Course_Category에 들어가는 것을 막아!
-		        			//	manager_db.insert_course_category(cc);	
+		        			this.Course_Category_Cd = Integer.parseInt(String.valueOf(this.Course_Id) + String.valueOf(this.Category_Cd));
+		        			
+			                // Course_Category Info insert!
+		        			Course_Category cc = new Course_Category(this.Course_Id, this.Category_Cd, Course_Category_Cd);
+		        			manager_db.insert_course_category(cc);	//
 		        		}
 		        		
 		        		this.lCategory_Cd = LongVectorCategory_Cd;
@@ -111,11 +117,8 @@ public class CourseCrawling {
 	                course.checkCourse();  //print information
 	                manager_db.insert_course(course);// insert into Course Table // insert to DB
                 }
-              //  Course course = new Course(this.Course_Id, this.Course_Title, this.Course_Des, this.Course_Thumbnail, this.Course_Url, this.Course_Category_Cnt, this.Course_level, this.lCategory_Cd);
             }
- 
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
    
