@@ -23,6 +23,11 @@ public class App {
 		String url_courseInfo = "https://api.coursera.org/api/catalog.v1/courses?includes=categories&fields=name,shortDescription,shortName,language,targetAudience,smallIcon";
 		CourseCrawling course = new CourseCrawling(url_courseInfo);// course Info crawling
 		course.courseRun();  // 초기 정보수집
+		
+		//2. K means 알고리즘!
+		Kmeans kmeans = new Kmeans();
+		kmeans.start();
+				
 
 	}
 }
