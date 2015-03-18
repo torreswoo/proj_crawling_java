@@ -101,7 +101,7 @@ public class CourseCrawling {
 		        			Long LongCategory_Cd = iterator.next(); //LongCategory_Cd를 Course에 저장하기위해서
 		        			LongVectorCategory_Cd.add(LongCategory_Cd);
 		        			this.Category_Cd = LongCategory_Cd.intValue();	// DB의 Course_Category에 저장하기위해 Long -> int로변
-		        			this.Course_Category_Cd = Integer.parseInt(String.valueOf(this.Course_Id) + String.valueOf(this.Category_Cd));
+		        			this.Course_Category_Cd = Integer.parseInt(String.valueOf(this.Course_Id) + "00"+ String.valueOf(this.Category_Cd));
 		        			
 			                // Course_Category Info insert!
 		        			Course_Category cc = new Course_Category(this.Course_Id, this.Category_Cd, Course_Category_Cd);
