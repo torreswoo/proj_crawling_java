@@ -33,20 +33,82 @@ class Kmeans extends Thread{
 		this.__printCheck(this.clusteredDataSet, this.dataset);
 
 		
+		
+		//4. User_Interest테이블에 가장유사한것으로 업데이트
+		List<User_Interest> user = this.makeUserInteresetDataSet();//1.
+		user = this.nearestClusterIds(user, this.centroids);
+		
+		for(int i = 0 ; i <user.size() ; i++){
+			System.out.println( "userid: " + user.get(i).getUser_Id() + ", user clusterid: "+ user.get(i).getCluster_Id() );
+		}
+		//saveing
+		this.saveUserInterestDataSet(user);
+		
 	}
 	
+	////////////////////////////////////////////////////////////////
+	public void saveUserInterestDataSet(List<User_Interest> user){
+		db.saving_User_Interest(user);
+	}
+	
+	public List<User_Interest> makeUserInteresetDataSet(){
+		return db.making_User_Interest();
+	}
+	//
+	
+	public List<User_Interest> nearestClusterIds(List<User_Interest> user, CourseData[] centroids){
+
+		for(int i = 0 ; i <user.size() ; i++){
+			int nearClusterId = this._nearestCluster(user.get(i), centroids);
+			user.get(i).setCluster_Id(nearClusterId);
+		}
+		return user;
+	}
+	
+	
+	public int _nearestCluster(User_Interest item, CourseData[] centroids){
+		double distance=0, temp=0;
+		int index=0, pos=0;
+		
+		for(int i = 0 ; i <centroids.length ; i++){
+			temp = this._similarity(item, centroids[i]);// 유사도 비교!
+			if(temp > distance){
+				distance = temp; 	
+				pos = index;
+			}
+			index++;
+		}
+		return pos;
+	}
+	
+	public void saveUserClusterDataSet(){
+		
+	}
+
+	public double _similarity(User_Interest data, CourseData center){
+		double similarity = this._cosineDistance(data, center);
+		return similarity;
+	}
+	
+	private double _cosineDistance(User_Interest data, CourseData center){
+		int size = data.getFeature().length;
+		double normA=0, normB=0, scla=0; 
+		for(int i = 0 ; i < size ; i++){
+			normA += (data.getFeature()[i]*data.getFeature()[i]);
+			normB += (center.getFeature()[i]*center.getFeature()[i]);
+			scla += (data.getFeature()[i]*center.getFeature()[i]); 
+		}
+		double similarity = scla / ( Math.sqrt(normA) * Math.sqrt(normB)  );
+		return similarity;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////
 	public void makeDataSet(){  		//1. DB에연결하여 대이터 전처리 
 		
 		this.dataset = this.db.making_CourseData(); //DB정보로 코스정보를 세팅
 												// dataset이 메모리에 올라옴!
-//		for(int j = 0 ; j < this.dataset.size() ; j++){
-//			System.out.println("id:"+dataset.get(j).getCourse_id()+", title: "+dataset.get(j).getCourse_title() );
-//			for(int i = 0 ; i < 27 ; i++){
-//				System.out.print(dataset.get(j).getFeatureIdx(i)+ ", ");
-//			}
-//			System.out.println();
-//		}		
-//		System.out.println(this.dataset.size());
 	}
 	
 	

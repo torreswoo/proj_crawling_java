@@ -20,6 +20,7 @@ public class DataBaseManager {
 	private static final double  CATEGORY_NUM_DEFAULT = 2.5;
 	
 	private static DataBaseManager instance = null;
+	private DBmgr_UserCluster db_user = null;
 	
 	private Connection conn = null;
 	private String URL = "jdbc:mysql://175.126.56.188:3306/courspick";
@@ -29,6 +30,9 @@ public class DataBaseManager {
 	PreparedStatement pstmt = null;
 	Statement st = null;
 	ResultSet rs = null;	
+	
+	
+	
 	
 	public DataBaseManager(){
 		connect();
@@ -46,6 +50,9 @@ public class DataBaseManager {
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(URL, id, pw);
+			
+			DBmgr_UserCluster  db_user = new DBmgr_UserCluster();///
+			db_user.getInstance().connect(conn);
 		
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -56,6 +63,18 @@ public class DataBaseManager {
 		}
 	}
 	
+	
+	// User_Interest : DB -> local : User_Interset객체로 
+	public List<User_Interest> making_User_Interest(){
+		List<User_Interest> result_dataset = new ArrayList<User_Interest>(); 
+		result_dataset = db_user.getInstance()._making_User_Interest();	
+	//	result_dataset = this._making_User_Interest();
+		return result_dataset; 
+	}
+	public void saving_User_Interest(List<User_Interest> user){
+		db_user.getInstance()._saving_User_Interest(user);
+	//	this._saving_User_Interest(user);
+	}
 	
 	// save Cluster Info to =>Cluster_Centroid , => Cluster_Category
 	public int saving_Cluster(CourseData[] centroids, List<Integer>[] clusteredDataSet, List<CourseData> dataset){
@@ -144,7 +163,7 @@ public class DataBaseManager {
 			    }
 			    else{
 			      	System.out.println("DataBaseManager(insert into cluster_centroid) 실패 " + Cluster_Title);
-			}
+			    }
 			
 			} catch (MySQLIntegrityConstraintViolationException e) {
 				System.out.println("DataBaseManager->insert_cluster_centroid()"+e.getMessage() +  " 이미 존재합니다.");
@@ -252,7 +271,8 @@ public class DataBaseManager {
 						data.setFeatureIdx_val( rs2.getInt("Category_Cd"), this.CATEGORY_NUM_3 );
 					}
 					else{
-						data.setFeatureIdx( rs2.getInt("Category_Cd") );
+//						data.setFeatureIdx( rs2.getInt("Category_Cd") );
+						data.setFeatureIdx_val( rs2.getInt("Category_Cd"), this.CATEGORY_NUM_DEFAULT );
 					}
 				}		
 				result_dataset.add(data);
