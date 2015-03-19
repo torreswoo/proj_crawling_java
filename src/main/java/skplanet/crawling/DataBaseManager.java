@@ -84,7 +84,7 @@ public class DataBaseManager {
 		
 		this.insert_cluster_centroid(centroids);
 		this.insert_cluster_course(clusteredDataSet, dataset);
-		
+		this.update_course(dataset);
 		
 		return 0;
 	}
@@ -113,6 +113,37 @@ public class DataBaseManager {
 			e.printStackTrace();
 		}
 	}
+	public void update_course( List<CourseData> dataset){
+		//update User_Interest set Cluster_Id=? where User_Id=?
+    	try {
+    		
+    		String sql = "update Course set User_Type_Cd=? where Course_Id=?";
+			pstmt=conn.prepareStatement(sql);
+
+			for(int i = 0 ; i < dataset.size() ; i++){
+				pstmt.setInt(1, dataset.get(i).getCluster_id() );		
+				pstmt.setInt(2, dataset.get(i).getCourse_id() );
+				
+			//	System.out.println("getCourse_id: " + dataset.get(i).getCourse_id() +", getCluster_id"+ dataset.get(i).getCluster_id());		
+				
+			    int result = pstmt.executeUpdate();
+			    if(result ==1){
+			//      System.out.println("DataBaseManager(insert into cluster_centroid) 성공 "+ Course_Title);
+			    }
+			    else{
+			      	System.out.println("DataBaseManager(update into update_course) 실패 ");
+			    }
+			}
+			
+    	} catch (MySQLIntegrityConstraintViolationException e) {
+			System.out.println("DataBaseManager->update_course()"+e.getMessage() +  " 이미 존재합니다.");
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void insert_cluster_centroid(CourseData[] centroids) {//throws SQLException {
 		int size = centroids.length;

@@ -4,6 +4,7 @@ public class CourseData {
 
 	private String Course_title;
 	private int Course_id;
+	private int Cluster_id;
 	private int Cluster_Course_Cnt;
 	
 	private double[] feature = new double[27];
@@ -19,6 +20,12 @@ public class CourseData {
 		}
 	}
 
+	public int getCluster_id() {
+		return Cluster_id;
+	}
+	public void setCluster_id(int cluster_id) {
+		Cluster_id = cluster_id;
+	}
 	public int getCluster_Course_Cnt() {
 		return Cluster_Course_Cnt;
 	}

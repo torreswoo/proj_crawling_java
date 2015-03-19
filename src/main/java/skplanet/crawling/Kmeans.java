@@ -33,16 +33,10 @@ class Kmeans extends Thread{
 		this.__printCheck(this.clusteredDataSet, this.dataset);
 
 		
-		
 		//4. User_Interest테이블에 가장유사한것으로 업데이트
 		List<User_Interest> user = this.makeUserInteresetDataSet();//1.
 		user = this.nearestClusterIds(user, this.centroids);
-		
-		for(int i = 0 ; i <user.size() ; i++){
-			System.out.println( "userid: " + user.get(i).getUser_Id() + ", user clusterid: "+ user.get(i).getCluster_Id() );
-		}
-		//saveing
-		this.saveUserInterestDataSet(user);
+		this.saveUserInterestDataSet(user);		//saveing
 		
 	}
 	
@@ -214,6 +208,7 @@ class Kmeans extends Thread{
 		for(int i = 0 ; i <dataset.size() ; i++){
 			int nearClusterId = this._nearestCluster(dataset.get(i), centroids);
 			clusteredDataSet[nearClusterId].add(i);
+			dataset.get(i).setCluster_id(nearClusterId);
 		}
 		return clusteredDataSet;
 	}

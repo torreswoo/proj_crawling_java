@@ -84,7 +84,7 @@ public class DBmgr_UserCluster {
 				}
 				
 				result_dataset.add(data);
-				System.out.println("user_id: " + data.getUser_Id() );
+			//	System.out.println("user_id: " + data.getUser_Id() );
 			}
 			rs.close();       //resultset 닫음
 			
