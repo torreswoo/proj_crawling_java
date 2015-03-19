@@ -14,10 +14,10 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 
 public class DataBaseManager {
 
-	private static final double  CATEGORY_NUM_1 = 2.0;
-	private static final double  CATEGORY_NUM_2 = 1.5;
-	private static final double  CATEGORY_NUM_3 = 1.2;
-	private static final double  CATEGORY_NUM_DEFAULT = 1.0;
+	private static final double  CATEGORY_NUM_1 = 1.0;
+	private static final double  CATEGORY_NUM_2 = 1.3;
+	private static final double  CATEGORY_NUM_3 = 2.0;
+	private static final double  CATEGORY_NUM_DEFAULT = 2.5;
 	
 	private static DataBaseManager instance = null;
 	
@@ -99,27 +99,44 @@ public class DataBaseManager {
 		int size = centroids.length;
 		
 		for(int i = 0 ; i < size ; ++i){
-			int Cluster_Id = i;
-			String Cluster_Title = centroids[i].getCourse_title();
 
+			String Cluster_Title = null;
+			double temp_i=0;
+			int Cluster_i = 0;
+			int Cluster_Course_Cnt = 0;
+			int Cluster_Id = i;
+			
 			double interest[] = new double[26];
 			for(int idx = 0 ; idx < 26 ; idx++){
 				interest[idx] = centroids[i].getFeature()[idx+1];
 			//	System.out.print(interest[idx]+",");
+				if(temp_i < interest[idx]){
+					temp_i = interest[idx];
+		//			System.out.println("interest["+idx+"]" + temp_i);
+					Cluster_i = idx+1; // 클러스터의 대표 i를 업데이트 
+				}
 			}
 			//System.out.println();
-				
+			
+			// select Cluster_Title using Cluster_i
+	//		Cluster_Title = select_Category(Cluster_i);
+			Cluster_Title = centroids[i].getCourse_title();
+			Cluster_Course_Cnt = centroids[i].getCluster_Course_Cnt();
+					
 				//int User_Type_Cd;
 			try {
-				String sql = "INSERT INTO Cluster_Centroid( Cluster_Id, Cluster_Title,"
+				String sql = "INSERT INTO Cluster_Centroid( Cluster_Id, Cluster_Title,Cluster_Course_Cnt,"
 							+"i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16, i17, i18, i19, i20, i21, i22, i23, i24, i25, i26) "
-							+" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+							+" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				pstmt=conn.prepareStatement(sql);
 
 				pstmt.setInt(1, Cluster_Id);		
 				pstmt.setString(2, Cluster_Title);
+				pstmt.setInt(3, Cluster_Course_Cnt);
+				System.out.println("INSERT : " + Cluster_Id + ", " + Cluster_Title +", " +Cluster_Course_Cnt);
+				
 				for(int idx = 0 ; idx < 26 ; idx++){
-					pstmt.setDouble(idx+3, interest[idx]);
+					pstmt.setDouble(idx+4, interest[idx]);					
 				}		         
 			    int result = pstmt.executeUpdate();
 			    if(result ==1){
@@ -136,6 +153,31 @@ public class DataBaseManager {
 			}
 		}
 	}
+	
+	public String select_Category(int Category_Cd){
+		
+		String Cluster_Title = null;
+		
+		try{
+			String sql = "select * from Category where Category_Cd=?";
+			pstmt=conn.prepareStatement(sql);
+			pstmt.setInt(1, Category_Cd);		
+			rs = pstmt.executeQuery();//
+			
+			while(rs.next()){
+				Cluster_Title = rs.getString("Category_Nm");//
+			}
+			
+		}
+		catch(Exception e){ 
+			e.printStackTrace();
+
+		}
+		
+		return Cluster_Title;
+	}
+	
+	
 	public void insert_cluster_course(List<Integer>[] clusteredDataSet, List<CourseData> dataset){
 		int size = clusteredDataSet.length;
 		try {

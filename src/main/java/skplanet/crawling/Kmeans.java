@@ -5,8 +5,8 @@ import java.util.List;
 
 class Kmeans extends Thread{
 
-	private int CLURSTER =10;  //군집개
-	private int COUNT =10;  //반복횟수 
+	private int CLURSTER =9;  //군집개
+	private int COUNT =12;  //반복횟수 
 	
 	private DataBaseManager db =null;
 	private CourseData[] centroids = null; // 각각의 클러스터의 중심점이 되는 강의정보 
@@ -26,10 +26,12 @@ class Kmeans extends Thread{
 	
 		//2.클러스터알고리즘
 		this.cluseterAlgorithm(this.COUNT);// 데이터를 local에서 계산
-		this.__printCheck(this.clusteredDataSet, this.dataset);
 
+				
 		//3. DB에 연결하여 결과를 INSERT( local -> DB )
 		this.saveDataSet();
+		this.__printCheck(this.clusteredDataSet, this.dataset);
+
 		
 	}
 	
@@ -49,6 +51,24 @@ class Kmeans extends Thread{
 	
 	
 	public void saveDataSet(){
+		// DB에
+		for(int i = 0 ; i<this.CLURSTER ; i++){
+			double interest[] = new double[26];
+			double temp_i=0.0;
+			int Cluster_i=0;
+			for(int idx = 0 ; idx < 26 ; idx++){
+				interest[idx] = this.centroids[i].getFeature()[idx+1];
+			//	System.out.print(interest[idx]+",");
+				if(temp_i < interest[idx]){
+					temp_i = interest[idx];
+					Cluster_i = idx+1; // 클러스터의 대표 i를 업데이트 
+				}
+			}
+			String Cluster_Title = this.db.select_Category(Cluster_i);
+			this.centroids[i].setCourse_title(Cluster_Title); //
+					
+			this.centroids[i].setCluster_Course_Cnt( clusteredDataSet[i].size() );
+		}
 		db.saving_Cluster(centroids, clusteredDataSet, dataset);		
 	}
 	
@@ -103,7 +123,7 @@ class Kmeans extends Thread{
 		}
 		return centroid;
 	}
-	public static void divideVectorEachElement( CourseData divided, double val ){
+	public void divideVectorEachElement( CourseData divided, double val ){
 		int size = divided.getFeature().length;//??
 		for(int i =0 ; i< size ; i++){
 			double v = (double)divided.getFeature()[i];
@@ -111,14 +131,13 @@ class Kmeans extends Thread{
 		}
 	}
 	
-	public static void sumVectorEachElement( CourseData added, CourseData val){
+	public void sumVectorEachElement( CourseData added, CourseData val){
 		int size = val.getFeature().length;//??
 		for(int i = 0 ; i<(size) ; i++){
 			double sum = added.getFeature()[i];
 			double v = val.getFeature()[i];
 			added.getFeature()[i] = v+sum;
 		}		
-		added.setCourse_title("clustered");
 	}	
 	
 	//main-2.클러스터!!  
