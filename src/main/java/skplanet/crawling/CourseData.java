@@ -42,6 +42,9 @@ public class CourseData {
 	public void setFeatureIdx(int idx){
 		this.feature[idx]=1.0;
 	}
+	public void setFeatureIdx_val(int idx, double val){
+		this.feature[idx]=val;
+	}
 	public double getFeatureIdx(int idx){
 		return this.feature[idx];
 	}

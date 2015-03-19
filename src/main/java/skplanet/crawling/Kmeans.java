@@ -5,8 +5,8 @@ import java.util.List;
 
 class Kmeans extends Thread{
 
-	private int CLURSTER =10; 
-	private int COUNT =5;
+	private int CLURSTER =10;  //군집개
+	private int COUNT =10;  //반복횟수 
 	
 	private DataBaseManager db =null;
 	private CourseData[] centroids = null; // 각각의 클러스터의 중심점이 되는 강의정보 
@@ -18,7 +18,7 @@ class Kmeans extends Thread{
 		
 	}
 	
-	public void run(){
+	public void run(){//Thread가 실행되는 기본로직 
 		db = DataBaseManager.getInstance();
 		
 		//1. DB에연결하여 대이터 전처리  SELECT ( DB -> local)
@@ -27,17 +27,6 @@ class Kmeans extends Thread{
 		//2.클러스터알고리즘
 		this.cluseterAlgorithm(this.COUNT);// 데이터를 local에서 계산
 		this.__printCheck(this.clusteredDataSet, this.dataset);
-		
-		
-//		int size = this.centroids.length;
-//		System.out.print("centroid: ");
-//		for(int i = 0 ; i < size ; ++i){
-//			for(int idx = 0 ; idx < 26 ; idx++){
-//				System.out.print(centroids[i].getFeature()[idx+1]+",");
-//			}
-//			System.out.println();
-//		}
-		
 
 		//3. DB에 연결하여 결과를 INSERT( local -> DB )
 		this.saveDataSet();

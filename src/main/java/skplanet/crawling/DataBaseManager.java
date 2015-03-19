@@ -13,6 +13,11 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 
 
 public class DataBaseManager {
+
+	private static final double  CATEGORY_NUM_1 = 2.0;
+	private static final double  CATEGORY_NUM_2 = 1.5;
+	private static final double  CATEGORY_NUM_3 = 1.2;
+	private static final double  CATEGORY_NUM_DEFAULT = 1.0;
 	
 	private static DataBaseManager instance = null;
 	
@@ -77,6 +82,7 @@ public class DataBaseManager {
 			e.printStackTrace();
 		}
 	}
+	
 	public void clear_Cluster_CourseTable(){
 		try {
 			String sql = "delete from Cluster_Course";
@@ -85,7 +91,6 @@ public class DataBaseManager {
 		} catch (MySQLIntegrityConstraintViolationException e) {
 	        System.out.println("DataBaseManager->clear_Cluster_CourseTable()"+e.getMessage() + " 이미 존재합니다.");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -95,9 +100,8 @@ public class DataBaseManager {
 		
 		for(int i = 0 ; i < size ; ++i){
 			int Cluster_Id = i;
-			int Course_Id = centroids[i].getCourse_id();
-			String Course_Title = centroids[i].getCourse_title();
-			//	double interest[] = new double[26];
+			String Cluster_Title = centroids[i].getCourse_title();
+
 			double interest[] = new double[26];
 			for(int idx = 0 ; idx < 26 ; idx++){
 				interest[idx] = centroids[i].getFeature()[idx+1];
@@ -107,23 +111,22 @@ public class DataBaseManager {
 				
 				//int User_Type_Cd;
 			try {
-				String sql = "INSERT INTO Cluster_Centroid( Cluster_Id, Course_Id, Course_Title,"
+				String sql = "INSERT INTO Cluster_Centroid( Cluster_Id, Cluster_Title,"
 							+"i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16, i17, i18, i19, i20, i21, i22, i23, i24, i25, i26) "
-							+" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+							+" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				pstmt=conn.prepareStatement(sql);
 
-				pstmt.setInt(1, Cluster_Id);
-				pstmt.setInt(2, Course_Id);				
-				pstmt.setString(3, Course_Title);
+				pstmt.setInt(1, Cluster_Id);		
+				pstmt.setString(2, Cluster_Title);
 				for(int idx = 0 ; idx < 26 ; idx++){
-					pstmt.setDouble(idx+4, interest[idx]);
+					pstmt.setDouble(idx+3, interest[idx]);
 				}		         
 			    int result = pstmt.executeUpdate();
 			    if(result ==1){
 			//      System.out.println("DataBaseManager(insert into cluster_centroid) 성공 "+ Course_Title);
 			    }
 			    else{
-			      	System.out.println("DataBaseManager(insert into cluster_centroid) 실패 " + Course_Title);
+			      	System.out.println("DataBaseManager(insert into cluster_centroid) 실패 " + Cluster_Title);
 			}
 			
 			} catch (MySQLIntegrityConstraintViolationException e) {
@@ -172,10 +175,8 @@ public class DataBaseManager {
 	
 	// make CourseData from <= Course, <= Course_Category
 	public List<CourseData> making_CourseData(){
-	//	dataset.setCourse_id(123);
-//		CourseData data = new CourseData();
-		List<CourseData> result_dataset = new ArrayList<CourseData>(); 
-	
+
+		List<CourseData> result_dataset = new ArrayList<CourseData>(); 	
 		ResultSet rs = null;
 		ResultSet rs2 = null;
 		
@@ -191,14 +192,26 @@ public class DataBaseManager {
 				data.clear();
 				data.setCourse_id(rs.getInt("Course_Id"));
 				data.setCourse_title(rs.getString("course_title"));
+				int cnt = rs.getInt("Category_Cnt");
 				
 				String sql2 = "select * from Course_Category where Course_Id=?";
 				pstmt=conn.prepareStatement(sql2);				
 				pstmt.setInt(1, data.getCourse_id());
 				
-				rs2 = pstmt.executeQuery();
+				rs2 = pstmt.executeQuery();//
 				while(rs2.next()){
-					data.setFeatureIdx( rs2.getInt("Category_Cd") );
+					if(cnt ==1){
+						data.setFeatureIdx_val( rs2.getInt("Category_Cd"), this.CATEGORY_NUM_1 );
+					}
+					else if(cnt ==2){
+						data.setFeatureIdx_val( rs2.getInt("Category_Cd"), this.CATEGORY_NUM_2 );
+					}
+					else if(cnt ==3){
+						data.setFeatureIdx_val( rs2.getInt("Category_Cd"), this.CATEGORY_NUM_3 );
+					}
+					else{
+						data.setFeatureIdx( rs2.getInt("Category_Cd") );
+					}
 				}		
 				result_dataset.add(data);
 			}

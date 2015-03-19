@@ -114,7 +114,7 @@ public class CourseCrawling {
 
 	                // Course Info insert!
 	                course.settingCourseInfo(this.Course_Id, this.Course_Title, this.Course_Des, this.Course_Thumbnail, this.Course_Url, this.Course_Category_Cnt, this.Course_level, this.lCategory_Cd);
-	        //      course.checkCourse();  //print information
+	              course.checkCourse();  //print information
 	                manager_db.insert_course(course);// insert into Course Table // insert to DB
                 }
             }
